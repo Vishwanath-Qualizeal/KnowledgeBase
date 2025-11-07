@@ -73,12 +73,9 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure for development and production
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// Enable Swagger in all environments (including production)
+app.UseSwagger();
+app.UseSwaggerUI();
 
 // Enable CORS
 app.UseCors("AllowAll");
