@@ -1,0 +1,33 @@
+# Ignore build artifacts
+bin/
+obj/
+out/
+
+# Ignore IDE files
+.vs/
+.vscode/
+*.user
+*.suo
+
+# Ignore packages
+packages/
+*.nupkg
+
+# Ignore logs
+*.log
+logs/
+
+# Ignore environment files (will be set via AWS)
+.env
+
+# Ignore git files
+.git/
+.gitignore
+
+# Ignore documentation
+README.md
+*.md
+
+# Ignore temp files
+Thumbs.db
+.DS_Store

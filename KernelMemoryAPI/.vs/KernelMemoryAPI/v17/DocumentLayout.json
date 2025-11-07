@@ -1,0 +1,57 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\Vishwanath\\source\\repos\\Kernel_Memory\\KernelMemoryAPI\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{CB2983E9-EBB7-B6C0-F388-5DFAB33E32CA}|KernelMemoryAPI.csproj|c:\\users\\vishwanath\\source\\repos\\kernel_memory\\kernelmemoryapi\\controllers\\memorycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CB2983E9-EBB7-B6C0-F388-5DFAB33E32CA}|KernelMemoryAPI.csproj|solutionrelative:controllers\\memorycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CB2983E9-EBB7-B6C0-F388-5DFAB33E32CA}|KernelMemoryAPI.csproj|c:\\users\\vishwanath\\source\\repos\\kernel_memory\\kernelmemoryapi\\.env||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{CB2983E9-EBB7-B6C0-F388-5DFAB33E32CA}|KernelMemoryAPI.csproj|solutionrelative:.env||{8B382828-6202-11D1-8870-0000F87579D2}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "MemoryController.cs",
+              "DocumentMoniker": "C:\\Users\\Vishwanath\\source\\repos\\Kernel_Memory\\KernelMemoryAPI\\Controllers\\MemoryController.cs",
+              "RelativeDocumentMoniker": "Controllers\\MemoryController.cs",
+              "ToolTip": "C:\\Users\\Vishwanath\\source\\repos\\Kernel_Memory\\KernelMemoryAPI\\Controllers\\MemoryController.cs",
+              "RelativeToolTip": "Controllers\\MemoryController.cs",
+              "ViewState": "AgIAABwDAAAAAAAAAAApwAUDAAA1AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-25T12:55:39.691Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": ".env",
+              "DocumentMoniker": "C:\\Users\\Vishwanath\\source\\repos\\Kernel_Memory\\KernelMemoryAPI\\.env",
+              "RelativeDocumentMoniker": ".env",
+              "ToolTip": "C:\\Users\\Vishwanath\\source\\repos\\Kernel_Memory\\KernelMemoryAPI\\.env",
+              "RelativeToolTip": ".env",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2025-08-25T12:11:11.852Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="../buildMultiTargeting/KernelMemoryAPI.props" />
+</Project>
