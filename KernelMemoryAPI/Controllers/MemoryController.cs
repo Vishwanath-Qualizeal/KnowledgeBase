@@ -357,14 +357,21 @@ namespace KernelMemoryAPI.Controllers
         {
             var results = await _memory.SearchAsync(
                 query: "*",
-                filter: MemoryFilters.ByDocument(documentId)
+                filter: MemoryFilters.ByDocument(documentId),
+                limit: 1000 // Increase limit to get all chunks
             );
 
             if (!results.Results.Any())
                 return NotFound(new { message = "No data found for this document." });
 
-            var chunks = results.Results.Select(r => r.Partitions.First().Text);
-            return Ok(new { documentId, chunkCount = chunks.Count(), chunks });
+            // Get ALL partitions from ALL results
+            var chunks = results.Results
+                .SelectMany(r => r.Partitions.Select(p => p.Text))
+                .ToList();
+
+            _logger.LogInformation("Inspect returned {Count} chunks for document {DocId}", chunks.Count, documentId);
+
+            return Ok(new { documentId, chunkCount = chunks.Count, chunks });
         }
 
         // NEW ENDPOINTS FOR DOCUMENT MANAGEMENT
