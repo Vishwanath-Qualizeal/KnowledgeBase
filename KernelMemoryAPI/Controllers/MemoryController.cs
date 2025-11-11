@@ -175,15 +175,40 @@ namespace KernelMemoryAPI.Controllers
             var fileHash = await CalculateFileHashAsync(request.File);
             _logger.LogInformation("File hash: {Hash} for document {DocId}", fileHash, request.DocumentId);
 
-            // Check for duplicate file content
+            // Check for duplicate file content AND verify the document still exists
             if (FileHashStore.TryGetValue(fileHash, out var existingDocId))
             {
-                return BadRequest(new
+                _logger.LogInformation("Hash collision detected. Checking if document {ExistingDocId} still exists...", existingDocId);
+                
+                // Verify the document actually exists in the database
+                bool documentStillExists = false;
+                try
                 {
-                    message = $"This file content already exists with document ID: '{existingDocId}'. Please use a different file or the existing document ID.",
-                    existingDocumentId = existingDocId,
-                    fileHash = fileHash
-                });
+                    documentStillExists = await _memory.IsDocumentReadyAsync(existingDocId);
+                    _logger.LogInformation("Document {ExistingDocId} exists check: {Exists}", existingDocId, documentStillExists);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Error checking if document {ExistingDocId} exists. Assuming it doesn't.", existingDocId);
+                    documentStillExists = false;
+                }
+                
+                // If document doesn't exist, remove the stale hash mapping
+                if (!documentStillExists)
+                {
+                    _logger.LogWarning("Document {ExistingDocId} no longer exists. Removing stale hash mapping.", existingDocId);
+                    FileHashStore.Remove(fileHash);
+                }
+                else
+                {
+                    // Document exists, reject the duplicate upload
+                    return BadRequest(new
+                    {
+                        message = $"This file content already exists with document ID: '{existingDocId}'. Please use a different file or the existing document ID.",
+                        existingDocumentId = existingDocId,
+                        fileHash = fileHash
+                    });
+                }
             }
 
             // Save the uploaded file to a temporary path
@@ -910,12 +935,17 @@ public async Task<IActionResult> GetAllDocuments()
                     }
                 }
 
-                // Remove from hash store if exists
+                // ALWAYS remove from hash store, regardless of deletion success
+                // This prevents orphaned hash entries from blocking future uploads
                 var hashToRemove = FileHashStore.FirstOrDefault(kvp => kvp.Value == documentId).Key;
                 if (!string.IsNullOrEmpty(hashToRemove))
                 {
                     FileHashStore.Remove(hashToRemove);
-                    _logger.LogInformation("Removed hash mapping for deleted document {DocId}", documentId);
+                    _logger.LogInformation("Removed hash mapping for document {DocId}", documentId);
+                }
+                else
+                {
+                    _logger.LogInformation("No hash mapping found for document {DocId}", documentId);
                 }
 
                 _logger.LogInformation("Successfully deleted document: {DocId}", documentId);

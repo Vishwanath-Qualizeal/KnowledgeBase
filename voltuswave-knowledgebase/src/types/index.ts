@@ -11,6 +11,8 @@ export interface Book {
   sourceType: string;
   chunks?: number;
   uploadDate?: Date;
+  processingState?: 'uploading' | 'processing' | 'ready' | 'error';
+  processingMessage?: string;
 }
 
 export interface QueryResult {

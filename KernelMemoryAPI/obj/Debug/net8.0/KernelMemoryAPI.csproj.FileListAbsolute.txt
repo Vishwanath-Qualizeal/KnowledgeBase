@@ -920,3 +920,4 @@ C:\Users\Vishwanath\source\repos\RAGKnowledgeBase\KernelMemoryAPI\obj\Debug\net8
 C:\Users\Vishwanath\source\repos\RAGKnowledgeBase\KernelMemoryAPI\obj\Debug\net8.0\KernelMemoryAPI.pdb
 C:\Users\Vishwanath\source\repos\RAGKnowledgeBase\KernelMemoryAPI\obj\Debug\net8.0\KernelMemoryAPI.genruntimeconfig.cache
 C:\Users\Vishwanath\source\repos\RAGKnowledgeBase\KernelMemoryAPI\obj\Debug\net8.0\ref\KernelMemoryAPI.dll
+C:\Users\Vishwanath\source\repos\RAGKnowledgeBase\KernelMemoryAPI\obj\Debug\net8.0\KernelMemoryAPI.sourcelink.json

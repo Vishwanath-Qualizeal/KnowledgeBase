@@ -1,3 +1,4 @@
 KernelMemoryAPI/.env
 *.env
 .env.*
+.serena
