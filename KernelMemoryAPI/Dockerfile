@@ -1,8 +1,7 @@
 # Use the official .NET runtime as base image
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
-EXPOSE 80
-EXPOSE 443
+EXPOSE 8080
 
 # Use the .NET SDK image to build the app
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
@@ -31,7 +30,9 @@ COPY --from=publish /app/publish .
 
 # Set environment variables for production
 ENV ASPNETCORE_ENVIRONMENT=Production
-ENV ASPNETCORE_URLS=http://+:80
+ENV ASPNETCORE_HTTP_PORTS=8080
+# Unset ASPNETCORE_URLS to avoid override warning - use ASPNETCORE_HTTP_PORTS instead
+# ENV ASPNETCORE_URLS=
 
 # Run the application
 ENTRYPOINT ["dotnet", "KernelMemoryAPI.dll"]
