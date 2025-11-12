@@ -122,18 +122,31 @@ class APIService {
 
       const backendResponse = response.data;
 
+      // Extract relevant sources - Kernel Memory returns them in Citation objects with Partitions
+      // Structure: { RelevantSources: [{ SourceName, Link, Partitions: [{ Text, Relevance, Tags }] }] }
+      const relevantSources = (backendResponse.relevantSources || backendResponse.RelevantSources || []).flatMap((citation: any) => {
+        // Log the raw citation to debug field names
+        console.log('Raw citation object:', citation);
+        
+        // Extract partitions from the citation
+        const partitions = citation.partitions || citation.Partitions || [];
+        
+        // Map each partition to our QueryResult format
+        return partitions.map((partition: any) => ({
+          text: partition.text || partition.Text || '',
+          relevance: partition.relevance || partition.Relevance || 0,
+          documentId: citation.sourceName || citation.SourceName || '',
+          partitionId: partition.partitionNumber || partition.PartitionNumber || '',
+          sourceFile: citation.link || citation.Link || '',
+          tags: partition.tags || partition.Tags || {},
+        }));
+      });
+
       const queryResponse: QueryResponse = {
         question: backendResponse.question || request.question,
         answer: backendResponse.text || backendResponse.Text || backendResponse.result || backendResponse.Result || 'No answer provided',
         noResult: backendResponse.noResult || backendResponse.NoResult || false,
-        relevantSources: (backendResponse.relevantSources || backendResponse.RelevantSources || []).map((source: any) => ({
-          text: source.text || source.Text || source.SourceContent || '',
-          relevance: source.relevance || source.Relevance || source.score || 0,
-          documentId: source.documentId || source.DocumentId || source.SourceName || '',
-          partitionId: source.partitionId || source.PartitionId || '',
-          sourceFile: source.sourceName || source.SourceName || source.Link || '',
-          tags: source.tags || source.Tags || {},
-        })),
+        relevantSources,
       };
 
       console.log('Transformed query response:', queryResponse);

@@ -343,6 +343,27 @@ namespace KernelMemoryAPI.Controllers
                     _logger.LogInformation("Global search completed across all documents");
                 }
 
+                // Log the structure of the answer for debugging
+                _logger.LogInformation("MemoryAnswer structure - Question: {Q}, Result Length: {L}, RelevantSources Count: {C}",
+                    answer.Question, answer.Result?.Length ?? 0, answer.RelevantSources?.Count ?? 0);
+                
+                if (answer.RelevantSources != null && answer.RelevantSources.Any())
+                {
+                    for (int i = 0; i < Math.Min(2, answer.RelevantSources.Count); i++)
+                    {
+                        var source = answer.RelevantSources[i];
+                        _logger.LogInformation("Source {Index} - Partitions: {P}, SourceName: {SN}, Link: {L}",
+                            i, source.Partitions?.Count ?? 0, source.SourceName, source.Link);
+                        
+                        if (source.Partitions != null && source.Partitions.Any())
+                        {
+                            var firstPartition = source.Partitions.First();
+                            _logger.LogInformation("First Partition - Text Length: {TL}, Relevance: {R}",
+                                firstPartition.Text?.Length ?? 0, firstPartition.Relevance);
+                        }
+                    }
+                }
+
                 return Ok(answer);
             }
             catch (Exception ex)
@@ -364,12 +385,23 @@ namespace KernelMemoryAPI.Controllers
             if (!results.Results.Any())
                 return NotFound(new { message = "No data found for this document." });
 
-            // Get ALL partitions from ALL results
-            var chunks = results.Results
-                .SelectMany(r => r.Partitions.Select(p => p.Text))
+            // Get ALL UNIQUE partitions from ALL results
+            // Group by partition number/ID to avoid duplicate partitions being counted multiple times
+            var allPartitions = results.Results
+                .SelectMany(r => r.Partitions)
+                .GroupBy(p => new { 
+                    PartitionNumber = p.PartitionNumber,
+                    // Also group by a portion of text to distinguish truly different partitions
+                    TextPrefix = p.Text?.Length > 50 ? p.Text.Substring(0, 50) : p.Text 
+                })
+                .Select(g => g.First()) // Take first partition from each group
+                .OrderBy(p => p.PartitionNumber)
                 .ToList();
+            
+            var chunks = allPartitions.Select(p => p.Text).ToList();
 
-            _logger.LogInformation("Inspect returned {Count} chunks for document {DocId}", chunks.Count, documentId);
+            _logger.LogInformation("Inspect returned {Count} unique chunks (from {Total} total partitions) for document {DocId}", 
+                chunks.Count, results.Results.SelectMany(r => r.Partitions).Count(), documentId);
 
             return Ok(new { documentId, chunkCount = chunks.Count, chunks });
         }
@@ -463,21 +495,33 @@ public async Task<IActionResult> GetAllDocuments()
         if (results.Results.Any())
         {
             // Group results by document ID and get document info
+            // Apply same deduplication logic as Inspect endpoint
             documents = results.Results
                 .SelectMany(r => r.Partitions)
                 .GroupBy(p => p.Tags.ContainsKey("__document_id") ? p.Tags["__document_id"].FirstOrDefault() : "unknown")
                 .Where(g => !string.IsNullOrEmpty(g.Key) && g.Key != "unknown")
-                .Select(g => new
-                {
-                    DocumentId = g.Key,
-                    FileName = g.Key, // Add fileName for frontend compatibility
-                    ChunkCount = g.Count(),
-                    UploadDate = DateTime.UtcNow.ToString("o"), // Add upload date
-                    Status = "Ready",
-                    TotalCharacters = g.Sum(p => p.Text.Length),
-                    FirstChunkPreview = g.First().Text.Length > 100
-                        ? g.First().Text.Substring(0, 100) + "..."
-                        : g.First().Text
+                .Select(g => {
+                    // Deduplicate partitions within this document group
+                    var uniquePartitions = g
+                        .GroupBy(p => new { 
+                            PartitionNumber = p.PartitionNumber,
+                            TextPrefix = p.Text?.Length > 50 ? p.Text.Substring(0, 50) : p.Text 
+                        })
+                        .Select(pg => pg.First())
+                        .ToList();
+                    
+                    return new
+                    {
+                        DocumentId = g.Key,
+                        FileName = g.Key, // Add fileName for frontend compatibility
+                        ChunkCount = uniquePartitions.Count, // Use deduplicated count
+                        UploadDate = DateTime.UtcNow.ToString("o"), // Add upload date
+                        Status = "Ready",
+                        TotalCharacters = uniquePartitions.Sum(p => p.Text?.Length ?? 0),
+                        FirstChunkPreview = uniquePartitions.FirstOrDefault()?.Text?.Length > 100
+                            ? uniquePartitions.First().Text.Substring(0, 100) + "..."
+                            : uniquePartitions.FirstOrDefault()?.Text ?? ""
+                    };
                 })
                 .OrderBy(d => d.DocumentId)
                 .Cast<object>()
